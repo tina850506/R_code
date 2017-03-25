@@ -1,0 +1,145 @@
+setwd("C:\\Users\\user\\Desktop\\R code")
+
+
+install.packages("xlsx")
+library(xlsx)
+RevenueCal = function(demand,cap,pri,cancel,noShow,refund,penalty,overbook)
+{
+  revenue <- c()
+  Revenuelist <- list()
+  onBoard <- c()
+  accept <- c()
+  penalty = c() 
+  
+  for(i in 1:length(demand)){
+    accept[i] = (cap/(1-cancel))/(1-noShow)+overbook*cap
+    onBoard[i] <- min(demand[i],accept[i])*(1-cancel)*(1-noShow)
+    penalty[i] = (max(onBoard[i]-cap,0))^2*p
+    revenue[i] <- pri*min(demand[i],accept[i])-pri*min(demand[i],accept[i])*cancel*refund- penalty[i]
+  }
+  Revenuelist1 <- list(Demand=demand,Onboard=onBoard,Revenue=revenue,Accept=accept,Penalty = penalty, Overbook= overbook)
+  return(Revenuelist1)
+
+}
+
+  
+p <- 48
+Total_R <- c()
+PenaltyMean <- c()
+C1_number <- c()
+C2_number <- c()
+
+demand1 <- c(28,16,25,20,22)
+#Fare(1200)
+demand2 <- c(50,49,44,43,34)
+#Fare(1000)
+demand3 <- c(45,51,57,44,55)
+#Fare(900)
+demand4 <- c(43,62,41,44,63)
+#Fare(800)
+demand5 <- c(57,69,55,51,87)
+#Fare(600)
+
+C1 <- 0
+C2 <- 70
+FareNumberCal = function(Faredemand_1,FarePrice_1,FareCancel_1,FareNoShow_1,FareRefund_1,FareOverB_1,Faredemand_2,FarePrice_2,FareCancel_2,FareNoShow_2,FareRefund_2,FareOverB_2){
+  while(C1 <= 68 && C2 >= 0){ 
+    Revenue1 = RevenueCal(Faredemand_1,C1,FarePrice_1,FareCancel_1,FareNoShow_1,FareRefund_1,penalty,FareOverB_1)
+    #plot(Revenue1$Demand,Revenue1$Revenue)
+    z1 <- cbind(Revenue1$Demand,Revenue1$Onboard,Revenue1$Revenue,Revenue1$Accept,Revenue1$Penalty)
+    C1 <- C1+1
+    Revenue2 = RevenueCal(Faredemand_2,C2,FarePrice_2,FareCancel_2,FareNoShow_2,FareRefund_2,penalty, FareOverB_2)
+    #plot(Revenue2$Demand,Revenue2$Revenue)
+    z2 <- cbind(Revenue2$Demand,Revenue2$Onboard,Revenue2$Revenue,Revenue2$Accept,Revenue2$Penalty)
+    C2 <- C2-1
+    Total <- z1[,3] + z2[,3] 
+    Total_R <- c(Total_R,mean(Total))
+    Penalty <- z1[,5] + z2[,5]
+    PenaltyMean <- c(PenaltyMean,mean(Penalty))
+    C1_number <- c(C1_number , C1)
+    C2_number <-c(C2_number, C2)
+
+    
+  }
+
+  TwoFare <- cbind(C1_number,C2_number,Total_R, PenaltyMean,FareOverB_1,FareOverB_2)
+  TwoFDataFrame <- data.frame(TwoFare)
+  return(TwoFDataFrame)
+}
+MaxRevC1C2 <- c()
+MaxRevC1C3 <- c()
+MaxRevC1C4 <- c()
+MaxRevC1C5 <- c()
+MaxRevC2C3 <- c()
+MaxRevC2C4 <- c()
+MaxRevC2C5 <- c()
+MaxRevC3C4 <- c()
+MaxRevC3C5 <- c()
+MaxRevC4C5 <- c()
+MaxRevC3C4[]
+
+for(i in seq(0,1,0.2)){
+  ComparisonC1C2 <- FareNumberCal(Faredemand_1 = demand1,FarePrice_1 = 1200,FareCancel_1 = 0.1,FareNoShow_1 = 0.15,FareRefund_1 = 1,FareOverB_1 = i ,Faredemand_2 = demand2,FarePrice_2 = 1000,FareCancel_2 = 0.08,FareNoShow_2 = 0.15,FareRefund_2 = 0.9, FareOverB_2 = i)
+  ComparisonC1C3 <- FareNumberCal(Faredemand_1 = demand1,FarePrice_1 = 1200,FareCancel_1 = 0.1,FareNoShow_1 = 0.15,FareRefund_1 = 1,FareOverB_1 = i ,Faredemand_2 = demand3,FarePrice_2 = 900,FareCancel_2 = 0.05,FareNoShow_2 = 0.15,FareRefund_2 = 0.8, FareOverB_2 = i)
+  ComparisonC1C4 <- FareNumberCal(Faredemand_1 = demand1,FarePrice_1 = 1200,FareCancel_1 = 0.1,FareNoShow_1 = 0.15,FareRefund_1 = 1,FareOverB_1 = i ,Faredemand_2 = demand4,FarePrice_2 = 800,FareCancel_2 = 0.03,FareNoShow_2 = 0.15,FareRefund_2 = 0.6, FareOverB_2 = i)
+  ComparisonC1C5 <- FareNumberCal(Faredemand_1 = demand1,FarePrice_1 = 1200,FareCancel_1 = 0.1,FareNoShow_1 = 0.15,FareRefund_1 = 1,FareOverB_1 = i ,Faredemand_2 = demand5,FarePrice_2 = 600,FareCancel_2 = 0.01,FareNoShow_2 = 0.15,FareRefund_2 = 0.3, FareOverB_2 = i)
+  ComparisonC2C3 <- FareNumberCal(Faredemand_1 = demand2,FarePrice_1 = 1000,FareCancel_1 = 0.08,FareNoShow_1 = 0.15,FareRefund_1 = 0.9,FareOverB_1 = i ,Faredemand_2 = demand3,FarePrice_2 = 900,FareCancel_2 = 0.05,FareNoShow_2 = 0.15,FareRefund_2 = 0.8, FareOverB_2 = i)
+  ComparisonC2C4 <- FareNumberCal(Faredemand_1 = demand2,FarePrice_1 = 1000,FareCancel_1 = 0.08,FareNoShow_1 = 0.15,FareRefund_1 = 0.9,FareOverB_1 = i ,Faredemand_2 = demand4,FarePrice_2 = 800,FareCancel_2 = 0.03,FareNoShow_2 = 0.15,FareRefund_2 = 0.6, FareOverB_2 = i)
+  ComparisonC2C5 <- FareNumberCal(Faredemand_1 = demand2,FarePrice_1 = 1000,FareCancel_1 = 0.08,FareNoShow_1 = 0.15,FareRefund_1 = 0.9,FareOverB_1 = i ,Faredemand_2 = demand5,FarePrice_2 = 600,FareCancel_2 = 0.01,FareNoShow_2 = 0.15,FareRefund_2 = 0.3, FareOverB_2 = i)
+  ComparisonC3C4 <- FareNumberCal(Faredemand_1 = demand3,FarePrice_1 = 900,FareCancel_1 = 0.05,FareNoShow_1 = 0.15,FareRefund_1 = 0.8,FareOverB_1 = i ,Faredemand_2 = demand4,FarePrice_2 = 800,FareCancel_2 = 0.03,FareNoShow_2 = 0.15,FareRefund_2 = 0.6, FareOverB_2 = i)
+  ComparisonC3C5 <- FareNumberCal(Faredemand_1 = demand3,FarePrice_1 = 900,FareCancel_1 = 0.05,FareNoShow_1 = 0.15,FareRefund_1 = 0.8,FareOverB_1 = i ,Faredemand_2 = demand5,FarePrice_2 = 600,FareCancel_2 = 0.01,FareNoShow_2 = 0.15,FareRefund_2 = 0.3, FareOverB_2 = i)
+  ComparisonC4C5 <- FareNumberCal(Faredemand_1 = demand4,FarePrice_1 = 800,FareCancel_1 = 0.03,FareNoShow_1 = 0.15,FareRefund_1 = 0.6,FareOverB_1 = i ,Faredemand_2 = demand5,FarePrice_2 = 600,FareCancel_2 = 0.01,FareNoShow_2 = 0.15,FareRefund_2 = 0.3, FareOverB_2 = i)
+  for (y in 1:69){
+    if(ComparisonC1C2[y,3]==max(ComparisonC1C2[,3])){
+      MaxRevC1C2 <- rbind.data.frame(MaxRevC1C2,ComparisonC1C2[y,])
+    }
+    if(ComparisonC1C3[y,3]==max(ComparisonC1C3[,3])){
+      MaxRevC1C3 <- rbind.data.frame(MaxRevC1C3,ComparisonC1C3[y,])
+    }
+    if(ComparisonC1C4[y,3]==max(ComparisonC1C4[,3])){
+      MaxRevC1C4 <- rbind.data.frame(MaxRevC1C4,ComparisonC1C4[y,])
+    }
+    if(ComparisonC1C5[y,3]==max(ComparisonC1C5[,3])){
+      MaxRevC1C5 <- rbind.data.frame(MaxRevC1C5,ComparisonC1C5[y,])
+    }
+    if(ComparisonC2C3[y,3]==max(ComparisonC2C3[,3])){
+      MaxRevC2C3 <- rbind.data.frame(MaxRevC2C3,ComparisonC2C3[y,])
+    }
+    if(ComparisonC2C4[y,3]==max(ComparisonC2C4[,3])){
+      MaxRevC2C4 <- rbind.data.frame(MaxRevC2C4,ComparisonC2C4[y,])
+    }
+    if(ComparisonC2C5[y,3]==max(ComparisonC2C5[,3])){
+      MaxRevC2C5 <- rbind.data.frame(MaxRevC2C5,ComparisonC2C5[y,])
+    }
+    if(ComparisonC3C4[y,3]==max(ComparisonC3C4[,3])){
+      MaxRevC3C4 <- rbind.data.frame(MaxRevC3C4,ComparisonC3C4[y,])
+    }
+    if(ComparisonC3C5[y,3]==max(ComparisonC3C5[,3])){
+      MaxRevC3C5 <- rbind.data.frame(MaxRevC3C5,ComparisonC3C5[y,])
+    }
+    if(ComparisonC4C5[y,3]==max(ComparisonC4C5[,3])){
+      MaxRevC4C5 <- rbind.data.frame(MaxRevC4C5,ComparisonC4C5[y,])
+    }
+  }
+  #write.xlsx(x = sample.dataframe, file = "test.excelfile.xlsx",sheetName = "TestSheet", row.names = FALSE)
+  #write.xlsx(MaxRevC1C2,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C1C2",row.names = F)
+  #write.xlsx(MaxRevC1C3,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C1C3",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC1C4,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C1C4",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC1C5,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C1C5",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC2C3,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C2C3",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC2C4,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C2C4",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC2C5,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C2C5",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC3C4,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C3C4",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC3C5,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C3C5",row.names = F,append=TRUE)
+  #write.xlsx(MaxRevC4C5,"C:\\Users\\user\\Desktop\\R code\\OBcomparison.xlsx","C4C5",row.names = F,append=TRUE)
+ 
+}
+
+C3 <- 0
+C3_number <- c()
+while(C3 <= 28){
+  Revenue3 = RevenueCal(Faredemand_3,C3,FarePrice_3,FareCancel_3,FareNoShow_3,FareRefund_3,penalty,FareOverB_3)
+  z3 <- cbind(Revenue3$Demand,Revenue3$Onboard,Revenue3$Revenue,Revenue3$Accept,Revenue3$Penalty)
+  C3 <- C3+1
+  Total_R3 <- z3[,3] + 
+  
